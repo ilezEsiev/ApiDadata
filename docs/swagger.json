@@ -1,0 +1,173 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Предаставляет данные по названию или гео координатам",
+        "title": "Топовый API",
+        "contact": {},
+        "version": "3.0"
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/api/geocode/address": {
+            "post": {
+                "description": "Обрабатывает запрос на геокодирование адреса и возвращает результат.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Геокодирование адреса.",
+                "operationId": "address-geocode-handler",
+                "parameters": [
+                    {
+                        "description": "Параметры запроса",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RequestAddressGeocode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/main.Address"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при запросе к Dadata API",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/search/address": {
+            "post": {
+                "description": "Обрабатывает запрос с параметрами поиска адресов и возвращает результат.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Поиск адресов с использованием Dadata API.",
+                "operationId": "address-search-handler",
+                "parameters": [
+                    {
+                        "description": "Параметры запроса",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RequestAddressSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/main.ResponseAddress"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при запросе к Dadata API",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.Address": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "city_district": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "flat": {
+                    "type": "string"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "postal_box": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "settlement": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RequestAddressGeocode": {
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "type": "string"
+                },
+                "lon": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RequestAddressSearch": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ResponseAddress": {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.Address"
+                    }
+                }
+            }
+        }
+    }
+}

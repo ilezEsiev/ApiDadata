@@ -1,0 +1,113 @@
+definitions:
+  main.Address:
+    properties:
+      area:
+        type: string
+      block:
+        type: string
+      city:
+        type: string
+      city_district:
+        type: string
+      country:
+        type: string
+      flat:
+        type: string
+      house:
+        type: string
+      postal_box:
+        type: string
+      region:
+        type: string
+      settlement:
+        type: string
+      street:
+        type: string
+      timezone:
+        type: string
+    type: object
+  main.RequestAddressGeocode:
+    properties:
+      lat:
+        type: string
+      lon:
+        type: string
+    type: object
+  main.RequestAddressSearch:
+    properties:
+      query:
+        type: string
+    type: object
+  main.ResponseAddress:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/main.Address'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Предаставляет данные по названию или гео координатам
+  title: Топовый API
+  version: "3.0"
+paths:
+  /api/geocode/address:
+    post:
+      consumes:
+      - application/json
+      description: Обрабатывает запрос на геокодирование адреса и возвращает результат.
+      operationId: address-geocode-handler
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RequestAddressGeocode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/main.Address'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка при запросе к Dadata API
+          schema:
+            type: string
+      summary: Геокодирование адреса.
+  /api/search/address:
+    post:
+      consumes:
+      - application/json
+      description: Обрабатывает запрос с параметрами поиска адресов и возвращает результат.
+      operationId: address-search-handler
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RequestAddressSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/main.ResponseAddress'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка при запросе к Dadata API
+          schema:
+            type: string
+      summary: Поиск адресов с использованием Dadata API.
+swagger: "2.0"
