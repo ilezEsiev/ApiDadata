@@ -3,61 +3,59 @@ package main
 import (
 	_ "ApiServer/docs"
 	"fmt"
-	"github.com/ekomobile/dadata/v2/client"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 )
 
-type RequestAddressSearch struct {
-	Query string `json:"query"`
-}
+var tokenAuth *jwtauth.JWTAuth
+var users = make(map[string]string) // Мапа для хранения пользователей и их паролей
 
-type ResponseAddress struct {
-	Addresses []*Address `json:"addresses"`
-}
+func init() {
+	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 
-type RequestAddressGeocode struct {
-	Lat string `json:"lat"`
-	Lon string `json:"lon"`
-}
-type Address struct {
-	Country      string `json:"country"`
-	Region       string `json:"region"`
-	Area         string `json:"area"`
-	City         string `json:"city"`
-	CityDistrict string `json:"city_district"`
-	Settlement   string `json:"settlement"`
-	Street       string `json:"street"`
-	House        string `json:"house"`
-	Block        string `json:"block"`
-	Flat         string `json:"flat"`
-	PostalBox    string `json:"postal_box"`
-	Timezone     string `json:"timezone"`
-}
-
-var keys = client.Credentials{
-	ApiKeyValue:    "007233085e9e9f5e7fa5871f0828d87ff737f0bf",
-	SecretKeyValue: "e4f919962e435bc587ac8c21f5e1b210c7bf9b11",
+	// For debugging/example purposes, we generate and print
+	// a sample jwt token with claims `user_id:123` here:
+	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
+	fmt.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
 }
 
 // @title Топовый API
 // @version 3.0
 // @description Предаставляет данные по названию или гео координатам
 // @host localhost:8080
-// @b
 func main() {
-	r := chi.NewRouter()
-	fmt.Println("server starting")
-	r.Post("/api/address/search", AddressSearchHandler)
-	r.Post("/api/address/geocode", AddressGeocodeHandler)
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
-	err := http.ListenAndServe(":8080", r)
-
+	addr := ":8080"
+	fmt.Printf("Starting server on %v\n", addr)
+	err := http.ListenAndServe(addr, router())
 	if err != nil {
-		fmt.Println(err)
 		log.Fatal(err)
 	}
-	fmt.Println("server running")
+}
+
+func router() http.Handler {
+	r := chi.NewRouter()
+
+	// Public routes
+	r.Group(func(r chi.Router) {
+		r.Post("/api/login", loginHandler)
+		r.Post("/api/register", registerHandler)
+		r.Get("/swagger/*", httpSwagger.WrapHandler)
+	})
+
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		// Seek, verify and validate JWT tokens
+		r.Use(jwtauth.Verifier(tokenAuth))
+
+		// Handle valid / invalid tokens
+		r.Use(jwtauth.Authenticator)
+
+		r.Post("/api/address/search", AddressSearchHandler)
+		r.Post("/api/address/geocode", AddressGeocodeHandler)
+	})
+
+	return r
 }
