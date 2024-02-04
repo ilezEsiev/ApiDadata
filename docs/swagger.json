@@ -8,6 +8,92 @@
     },
     "host": "localhost:8080",
     "paths": {
+        "/api/auth/login": {
+            "post": {
+                "description": "Обрабатывает запрос с данными пользователя и возвращает JWT-токен в случае успешной аутентификации.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Аутентификация пользователя.",
+                "operationId": "login-handler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Имя пользователя",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Пароль пользователя",
+                        "name": "password",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT-токен успешно создан",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверное имя пользователя или пароль",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "description": "Обрабатывает запрос с данными нового пользователя и регистрирует его в системе.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Регистрация нового пользователя.",
+                "operationId": "register-handler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Имя пользователя",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Пароль пользователя",
+                        "name": "password",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно зарегистрирован",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Пользователь с таким именем уже существует",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/geocode/address": {
             "post": {
                 "description": "Обрабатывает запрос на геокодирование адреса и возвращает результат.",

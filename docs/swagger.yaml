@@ -52,6 +52,66 @@ info:
   title: Топовый API
   version: "3.0"
 paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Обрабатывает запрос с данными пользователя и возвращает JWT-токен
+        в случае успешной аутентификации.
+      operationId: login-handler
+      parameters:
+      - description: Имя пользователя
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Пароль пользователя
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT-токен успешно создан
+          schema:
+            type: string
+        "401":
+          description: Неверное имя пользователя или пароль
+          schema:
+            type: string
+      summary: Аутентификация пользователя.
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Обрабатывает запрос с данными нового пользователя и регистрирует
+        его в системе.
+      operationId: register-handler
+      parameters:
+      - description: Имя пользователя
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Пароль пользователя
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно зарегистрирован
+          schema:
+            type: string
+        "400":
+          description: Пользователь с таким именем уже существует
+          schema:
+            type: string
+      summary: Регистрация нового пользователя.
   /api/geocode/address:
     post:
       consumes:

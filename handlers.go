@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"github.com/ekomobile/dadata/v2"
 	"github.com/ekomobile/dadata/v2/client"
+	"golang.org/x/crypto/bcrypt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 // @title dadata
@@ -126,4 +128,72 @@ func AddressGeocodeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// LoginHandler обрабатывает запрос на аутентификацию пользователя.
+// @Summary Аутентификация пользователя.
+// @Description Обрабатывает запрос с данными пользователя и возвращает JWT-токен в случае успешной аутентификации.
+// @ID login-handler
+// @Accept json
+// @Produce json
+// @Param username query string true "Имя пользователя"
+// @Param password query string true "Пароль пользователя"
+// @Success 200 {string} string "JWT-токен успешно создан"
+// @Failure 401 {string} string "Неверное имя пользователя или пароль"
+// @Router /api/auth/login [post]
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	// Проверяем, существует ли пользователь
+	storedPassword, ok := users[username]
+	if !ok || !checkPasswordHash(password, storedPassword) {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	// Генерируем JWT-токен
+	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"username": username, "exp": time.Now().Add(time.Hour).Unix()})
+	w.Write([]byte(tokenString))
+}
+
+// RegisterHandler обрабатывает запрос на регистрацию нового пользователя.
+// @Summary Регистрация нового пользователя.
+// @Description Обрабатывает запрос с данными нового пользователя и регистрирует его в системе.
+// @ID register-handler
+// @Accept json
+// @Produce json
+// @Param username query string true "Имя пользователя"
+// @Param password query string true "Пароль пользователя"
+// @Success 200 {string} string "Пользователь успешно зарегистрирован"
+// @Failure 400 {string} string "Пользователь с таким именем уже существует"
+// @Router /api/auth/register [post]
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	// Проверяем, что пользователь с таким именем не существует
+	if _, ok := users[username]; ok {
+		http.Error(w, "User already exists", http.StatusBadRequest)
+		return
+	}
+
+	// Хэшируем пароль перед сохранением в памяти
+	hashedPassword, _ := hashPassword(password)
+	users[username] = hashedPassword
+
+	w.Write([]byte("User registered successfully"))
+}
+
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
