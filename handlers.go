@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} ResponseAddress "Успешный ответ"
 // @Failure 400 {string} string "Неверный формат запроса"
 // @Failure 500 {string} string "Ошибка при запросе к Dadata API"
-// @Router /api/search/address [post]
+// @Router /api/address/search [post]
 func AddressSearchHandler(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressSearch
 
@@ -80,7 +80,7 @@ func AddressSearchHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} Address "Успешный ответ"
 // @Failure 400 {string} string "Неверный формат запроса"
 // @Failure 500 {string} string "Ошибка при запросе к Dadata API"
-// @Router /api/geocode/address [post]
+// @Router /api/address/geocode[post]
 func AddressGeocodeHandler(w http.ResponseWriter, r *http.Request) {
 	url := "http://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate/address"
 
@@ -140,7 +140,7 @@ func AddressGeocodeHandler(w http.ResponseWriter, r *http.Request) {
 // @Param password query string true "Пароль пользователя"
 // @Success 200 {string} string "JWT-токен успешно создан"
 // @Failure 401 {string} string "Неверное имя пользователя или пароль"
-// @Router /api/auth/login [post]
+// @Router /api/login [post]
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -167,7 +167,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // @Param password query string true "Пароль пользователя"
 // @Success 200 {string} string "Пользователь успешно зарегистрирован"
 // @Failure 400 {string} string "Пользователь с таким именем уже существует"
-// @Router /api/auth/register [post]
+// @Router /api/register [post]
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
